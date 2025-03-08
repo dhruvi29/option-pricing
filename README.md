@@ -6,3 +6,16 @@ C++ Build Proceess
 
 ### How to run this project
 ``` g++ ./include/binomial.h main.cpp binomial.cpp ```
+
+### Project evolution 
+#### Version 1: Using no arbitrage
+1. s1u = s0 * u; s1d = s0 * d
+2. c1u = max(0, s1u - x) || p1u = max(0, x - s1u) // X = Strike Price
+3. Portfolio of shares and an option -> v = h * S - c
+4. A portfolio, such that its value remains same in case of a upmove or a down move i.e. v1u = v1d
+5. Hence, equating v1u = v1d, we derive value of h -> hedge ratio. (Number of shares to but for writing each call)
+6. Calculate v1, calc p.v. of v1 tp get v0
+7. Again v0 = h * s0 - c0; from this, derive c0 & hence the value of call option
+8. Similarly get the value of put option
+
+#### Version 2: Using risk neutral probabilities 
