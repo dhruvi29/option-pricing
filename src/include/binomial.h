@@ -2,12 +2,12 @@ class BinomialModel{
 
     
     public:
-        double strikePrice_, spotPrice_, interestRate_, upMove_, downMove_; 
-        int timeToExpiry_;
+        double strikePrice_, spotPrice_, interestRate_, upMove_, downMove_;
         
-        BinomialModel(double strikePrice, double spotPrice, double interestRate, double upMove, double downMove, int timeToExpiry);
+        BinomialModel(double, double, double, double, double);
         ~BinomialModel();
 
-        double getCurrentValue();
+        double getCallValue();
+        double getPutValue();
 
 };

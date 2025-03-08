@@ -1,47 +1,98 @@
 #include "include/binomial.h"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 
-BinomialModel::BinomialModel(double strikePrice, double spotPrice, double interestRate, double upMove, double downMove, int timeToExpiry) {
+BinomialModel::BinomialModel(double spotPrice, double strikePrice, double interestRate, double upMove, double downMove) {
     // validations and percentage conversions
-    if (timeToExpiry < 0) {
-        throw std::invalid_argument("Time to expiry cannot be negative");
+    if (strikePrice < 0) {
+        throw std::invalid_argument("Strike price cannot be negative");
+    }
+    if (spotPrice < 0) {
+        throw std::invalid_argument("Spot price cannot be negative");
+    }
+    if (interestRate < 0) {
+        throw std::invalid_argument("Interest Rate cannot be negative");
+    }
+    if (upMove < 1) {
+        throw std::invalid_argument("Up move factor should be greater than or equal to 1");
+    }
+    if (downMove < 0) {
+        throw std::invalid_argument("Down move factor cannot be negative");
+    }
+    if (downMove > 1) {
+        throw std::invalid_argument("Down move factor cannot be greater than 1");
     }
     
-    this->strikePrice_ = strikePrice;
-    this->spotPrice_ = spotPrice;
-    this->interestRate_ = interestRate / 100;
-    this->upMove_ = upMove;
-    this->downMove_ = downMove;
-    this->timeToExpiry_ = timeToExpiry;
+    strikePrice_ = strikePrice;
+    spotPrice_ = spotPrice;
+    interestRate_ = interestRate / 100;
+    upMove_ = upMove;
+    downMove_ = downMove;
 
-    
+    std::cout << "Strike Price: " << strikePrice_ << "\n";
+    std::cout << "Spot Price: " << spotPrice_  << "\n";
+    std::cout << "Interest Rate: " << interestRate_  << "\n";
+    std::cout << "Up move factor: " << upMove_  << "\n";
+    std::cout << "Down move factor: " << downMove_  << "\n";
 }
 BinomialModel::~BinomialModel() {}
 
-double BinomialModel::getCurrentValue() {
+double BinomialModel::getCallValue() {
+
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
-
-    std::cout << s1u << " " << s1d << "\n";
-
     double c1u = std::max(0.0, s1u - strikePrice_);
     double c1d = std::max(0.0, s1d - strikePrice_);
+    double hedgeRatio = (c1u - c1d) / (s1u - s1d);
+    // v1u = v1d -> A portfolio of shares and options 
+    // i.e. Sell some shares & some call options to buy the sold shares in future
+    // or You could also - Buy some shares and write call options
+    // v1u = h * s1u - c1u; v1d = h * s1d - c1d;
+    double v1 = hedgeRatio * s1u - c1u;
+    double v0 = v1 / (1 + interestRate_);
+    // v0 = h * s0 - c0; c0 = h * s0 - v0
+    double c0 = hedgeRatio * spotPrice_ - v0;
 
-    std::cout << c1u << " " << c1d << "\n";
 
-    double probabOfUpmove = (1 + interestRate_ - downMove_) / (upMove_ - downMove_);
-    double probabOfDownmove = 1 - probabOfUpmove;
+    std::cout << "S1: " << s1u << " " << s1d << "\n";
+    std::cout << "C1: " << c1u << " " << c1d << "\n";
 
-    std::cout << probabOfUpmove << " " << probabOfDownmove << "\n";
-
-    double c1 = c1u * probabOfUpmove + c1d * probabOfDownmove;
-
-    double c0 = c1 / (1 + interestRate_);
-
-    std::cout << c1 << " " << c0 << "\n";
-
+    std::cout << "Hedge Ratio: " << hedgeRatio << "\n";
+    std::cout << "Value at time = 1: " << v1 << "\n";
+    std::cout << "Value at time = 0: " << v0 << "\n";
+    std::cout << "**************************\n";
+    std::cout << "Value of Call: " << c0 <<"\n";
+    std::cout << "**************************\n";
     return c0;
+}
+
+double BinomialModel::getPutValue() {
+
+    double s1u = spotPrice_ * upMove_;
+    double s1d = spotPrice_ * downMove_;
+    double p1u = std::max(0.0, strikePrice_ - s1u);
+    double p1d = std::max(0.0, strikePrice_ - s1d);
+    double hedgeRatio = (p1u - p1d) / (s1u - s1d);
+    // v1u = v1d -> A portfolio of shares and options 
+    // i.e. Buy some shares & buy some put options to sell the bought shares in future
+    // v1u = h * s1u - c1u; v1d = h * s1d - c1d;
+    double v1 = hedgeRatio * s1u - p1u;
+    double v0 = v1 / (1 + interestRate_);
+    // v0 = h * s0 - c0; c0 = h * s0 - v0
+    double p0 = hedgeRatio * spotPrice_ - v0;
+
+
+    std::cout << "S1: " << s1u << " " << s1d << "\n";
+    std::cout << "P1: " << p1u << " " << p1d << "\n";
+
+    std::cout << "Hedge Ratio: " << hedgeRatio << "\n";
+    std::cout << "Value at time = 1: " << v1 << "\n";
+    std::cout << "Value at time = 0: " << v0 << "\n";
+    std::cout << "**************************\n";
+    std::cout << "Value of Put: " << p0 <<"\n";
+    std::cout << "**************************\n";
+    return p0;
 }
 
