@@ -1,14 +1,13 @@
 # option-pricing
 
-C++ Build Proceess 
+### C++ Build Proceess 
 > https://stackoverflow.com/questions/6264249/how-does-the-compilation-linking-process-work
 > https://www.youtube.com/watch?v=JsIJBh2OKhM
 
-### How to run this project
-``` g++ ./include/binomial.h main.cpp binomial.cpp ```
 
 ### Project evolution 
 #### Version 1: Using no arbitrage
+``` g++ ./include/binomial.h main.cpp binomial.cpp ```
 1. s1u = s0 * u; s1d = s0 * d
 2. c1u = max(0, s1u - x) || p1u = max(0, x - s1u) // X = Strike Price
 3. Portfolio of shares and an option -> v = h * S - c
@@ -19,3 +18,10 @@ C++ Build Proceess
 8. Similarly get the value of put option
 
 #### Version 2: Using risk neutral probabilities 
+``` g++ ./include/binomial.h main.cpp binomial2.cpp ```
+1. step 1 and step 2 -> same as above
+2. Risk netral probability of upmove = (1 + Rf - d) / (u - d). 
+3. Expected future payoff = probability-weighted value of upmove and downmove
+4. Present value of xpected future payoff -> Required value of call / put
+
+> gives exact same results as version 1
