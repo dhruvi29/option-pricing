@@ -37,9 +37,8 @@ BinomialModel::BinomialModel(double spotPrice, double strikePrice, double intere
     std::cout << "Up move factor: " << upMove_  << "\n";
     std::cout << "Down move factor: " << downMove_  << "\n";
 }
-BinomialModel::~BinomialModel() {}
 
-double BinomialModel::getCallValue() {
+double BinomialModel::getCallValue_v1() {
 
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
@@ -68,7 +67,7 @@ double BinomialModel::getCallValue() {
     return c0;
 }
 
-double BinomialModel::getPutValue() {
+double BinomialModel::getPutValue_v1() {
 
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
@@ -96,3 +95,50 @@ double BinomialModel::getPutValue() {
     return p0;
 }
 
+double BinomialModel::getCallValue_v2() {
+    double s1u = spotPrice_ * upMove_;
+    double s1d = spotPrice_ * downMove_;
+    double c1u = std::max(0.0, s1u - strikePrice_);
+    double c1d = std::max(0.0, s1d - strikePrice_);
+
+    // p = (1 + RF - D)/(U-D) -> Risk free probability of upmove
+    // probablity of down move = 1 - probability of upmove
+    double p_up = (1 + interestRate_ - downMove_) / (upMove_ - downMove_);
+
+    // c1 (Expected future payoff) = probability-weighted value of upmove and downmove
+    double c1 = p_up * c1u + (1 - p_up) * c1d;
+    double c0 = c1 / (1 + interestRate_);
+
+    std::cout << "S1: " << s1u << " " << s1d << "\n";
+    std::cout << "C1: " << c1u << " " << c1d << "\n";
+
+    std::cout << "Value of cal at time = 1: " << c1 << "\n";
+    std::cout << "**************************\n";
+    std::cout << "Value of call at time = 0: " << c0 << "\n";
+    std::cout << "**************************\n";
+    return c0;
+}
+
+double BinomialModel::getPutValue_v2() {
+    double s1u = spotPrice_ * upMove_;
+    double s1d = spotPrice_ * downMove_;
+    double p1u = std::max(0.0, strikePrice_ - s1u);
+    double p1d = std::max(0.0, strikePrice_ - s1d);
+
+    // p = (1 + RF - D)/(U-D) -> Risk free probability of upmove
+    // probablity of down move = 1 - probability of upmove
+    double p_up = (1 + interestRate_ - downMove_) / (upMove_ - downMove_);
+
+    // p1 (Expected future payoff) = probability-weighted value of upmove and downmove
+    double p1 = p_up * p1u + (1 - p_up) * p1d;
+    double p0 = p1 / (1 + interestRate_);
+
+    std::cout << "S1: " << s1u << " " << s1d << "\n";
+    std::cout << "P1: " << p1u << " " << p1d << "\n";
+
+    std::cout << "Value of put at time = 1: " << p1 << "\n";
+    std::cout << "**************************\n";
+    std::cout << "Value of put at time = 0: " << p0 << "\n";
+    std::cout << "**************************\n";
+    return p0;
+}

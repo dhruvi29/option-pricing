@@ -1,10 +1,10 @@
-#include "include/binomial.h"
+#include "include/binomial2.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
 
-BinomialModel::BinomialModel(double spotPrice, double strikePrice, double interestRate, double upMove, double downMove) {
+BinomialModel2::BinomialModel2(double spotPrice, double strikePrice, double interestRate, double upMove, double downMove, int daysToExpiry) {
     // validations and percentage conversions
     if (strikePrice < 0) {
         throw std::invalid_argument("Strike price cannot be negative");
@@ -24,65 +24,51 @@ BinomialModel::BinomialModel(double spotPrice, double strikePrice, double intere
     if (downMove > 1) {
         throw std::invalid_argument("Down move factor cannot be greater than 1");
     }
+    if (daysToExpiry < 0) {
+        throw std::invalid_argument("Down move factor cannot be greater than 1");
+    }
     
     strikePrice_ = strikePrice;
     spotPrice_ = spotPrice;
     interestRate_ = interestRate / 100;
     upMove_ = upMove;
     downMove_ = downMove;
+    daysToExpiry_ = daysToExpiry;
 
+    // p = (1 + RF - D)/(U-D) -> Risk free probability of upmove
+    // probablity of down move = 1 - probability of upmove
+    p_up = (1 + interestRate_ / 365 - downMove_) / (upMove_ - downMove_);
+    
     std::cout << "Strike Price: " << strikePrice_ << "\n";
     std::cout << "Spot Price: " << spotPrice_  << "\n";
     std::cout << "Interest Rate: " << interestRate_  << "\n";
     std::cout << "Up move factor: " << upMove_  << "\n";
     std::cout << "Down move factor: " << downMove_  << "\n";
+    std::cout << "Probablility of upmove: " << p_up << "\n";
 }
-BinomialModel::~BinomialModel() {}
 
-double BinomialModel::getCallValue() {
+double BinomialModel2::_getCalValue_Rec(int daysToExpiry, double spotPrice) {
+
+    if (daysToExpiry == 0) return std::max(0.0, spotPrice - strikePrice_);
+
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
-    double c1u = std::max(0.0, s1u - strikePrice_);
-    double c1d = std::max(0.0, s1d - strikePrice_);
-
-    // p = (1 + RF - D)/(U-D) -> Risk free probability of upmove
-    // probablity of down move = 1 - probability of upmove
-    double p_up = (1 + interestRate_ - downMove_) / (upMove_ - downMove_);
+    double c1u = _getCalValue_Rec(daysToExpiry - 1, s1u);
+    double c1d = _getCalValue_Rec(daysToExpiry - 1, s1d);
 
     // c1 (Expected future payoff) = probability-weighted value of upmove and downmove
     double c1 = p_up * c1u + (1 - p_up) * c1d;
-    double c0 = c1 / (1 + interestRate_);
+    double c0 = c1 / (1 + interestRate_ / 365);
 
-    std::cout << "S1: " << s1u << " " << s1d << "\n";
-    std::cout << "C1: " << c1u << " " << c1d << "\n";
+    return c0;
 
-    std::cout << "Value of cal at time = 1: " << c1 << "\n";
-    std::cout << "**************************\n";
-    std::cout << "Value of call at time = 0: " << c0 << "\n";
-    std::cout << "**************************\n";
+}
+double BinomialModel2::getCallValue_v3() {
+    
+    double c0 = _getCalValue_Rec(daysToExpiry_, spotPrice_);
+    std::cout << "C0: " << c0 << "\n";
     return c0;
 }
-
-double BinomialModel::getPutValue() {
-    double s1u = spotPrice_ * upMove_;
-    double s1d = spotPrice_ * downMove_;
-    double p1u = std::max(0.0, strikePrice_ - s1u);
-    double p1d = std::max(0.0, strikePrice_ - s1d);
-
-    // p = (1 + RF - D)/(U-D) -> Risk free probability of upmove
-    // probablity of down move = 1 - probability of upmove
-    double p_up = (1 + interestRate_ - downMove_) / (upMove_ - downMove_);
-
-    // p1 (Expected future payoff) = probability-weighted value of upmove and downmove
-    double p1 = p_up * p1u + (1 - p_up) * p1d;
-    double p0 = p1 / (1 + interestRate_);
-
-    std::cout << "S1: " << s1u << " " << s1d << "\n";
-    std::cout << "P1: " << p1u << " " << p1d << "\n";
-
-    std::cout << "Value of put at time = 1: " << p1 << "\n";
-    std::cout << "**************************\n";
-    std::cout << "Value of put at time = 0: " << p0 << "\n";
-    std::cout << "**************************\n";
-    return p0;
+double BinomialModel2::getPutValue_v3() {
+    return 0.0;
 }

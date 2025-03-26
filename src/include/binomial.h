@@ -5,9 +5,10 @@ class BinomialModel{
         double strikePrice_, spotPrice_, interestRate_, upMove_, downMove_;
         
         BinomialModel(double, double, double, double, double);
-        ~BinomialModel();
 
-        double getCallValue();
-        double getPutValue();
+        double getCallValue_v1();
+        double getPutValue_v1();
 
+        double getCallValue_v2();
+        double getPutValue_v2();
 };

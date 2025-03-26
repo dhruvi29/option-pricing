@@ -18,10 +18,14 @@
 8. Similarly get the value of put option
 
 #### Version 2: Using risk neutral probabilities 
-``` g++ ./include/binomial.h main.cpp binomial2.cpp ```
+``` g++ ./include/binomial.h main.cpp binomial.cpp ```
 1. step 1 and step 2 -> same as above
 2. Risk netral probability of upmove = (1 + Rf - d) / (u - d). 
 3. Expected future payoff = probability-weighted value of upmove and downmove
 4. Present value of xpected future payoff -> Required value of call / put
 
 > gives exact same results as version 1
+
+#### Version 3: Multilevel - Include days to expiry + Recursive solution
+
+``` g++ ./include/binomial2.h main.cpp binomial2.cpp ```
