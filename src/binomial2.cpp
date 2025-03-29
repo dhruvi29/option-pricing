@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
+#include <map>
 
 BinomialModel2::BinomialModel2(double spotPrice, double strikePrice, double interestRate, double upMove, double downMove, int daysToExpiry) {
     // validations and percentage conversions
@@ -64,6 +66,25 @@ double BinomialModel2::_getCallValue_Rec(int daysToExpiry, double spotPrice) {
 
 }
 
+double BinomialModel2::_getCallValue_dp(int daysToExpiry, double spotPrice) {
+
+    if (daysToExpiry == 0) return std::max(0.0, spotPrice - strikePrice_);
+
+    if (dp[daysToExpiry].count(spotPrice) > 0) return dp[daysToExpiry][spotPrice];
+
+    double s1u = spotPrice_ * upMove_;
+    double s1d = spotPrice_ * downMove_;
+    double c1u = _getCallValue_dp(daysToExpiry - 1, s1u);
+    double c1d = _getCallValue_dp(daysToExpiry - 1, s1d);
+
+    // c1 (Expected future payoff) = probability-weighted value of upmove and downmove
+    double c1 = p_up * c1u + (1 - p_up) * c1d;
+    double c0 = c1 / (1 + interestRate_ / 365);
+
+    return dp[daysToExpiry][spotPrice] = c0;
+
+}
+
 double BinomialModel2::_getPutValue_Rec(int daysToExpiry, double spotPrice) {
 
     if (daysToExpiry == 0) return std::max(0.0, strikePrice_ - spotPrice);
@@ -82,7 +103,6 @@ double BinomialModel2::_getPutValue_Rec(int daysToExpiry, double spotPrice) {
 }
 
 double BinomialModel2::getCallValue_v3() {
-    
     double c0 = _getCallValue_Rec(daysToExpiry_, spotPrice_);
     std::cout << "C0: " << c0 << "\n";
     return c0;
@@ -92,4 +112,13 @@ double BinomialModel2::getPutValue_v3() {
     double p0 = _getPutValue_Rec(daysToExpiry_, spotPrice_);
     std::cout << "P0: " << p0 << "\n";
     return p0;
+}
+
+double BinomialModel2::getCallValue_v4() {
+
+    dp.resize(daysToExpiry_ + 1, {});
+
+    double c0 = _getCallValue_dp(daysToExpiry_, spotPrice_);
+    std::cout << "C0: " << c0 << "\n";
+    return c0;
 }
