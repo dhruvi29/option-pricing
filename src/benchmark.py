@@ -91,3 +91,4 @@ def valueOption(s, x, t, r, b, u, d, nat = 'E', typ = 'C', prnt = True, exercise
     return answerTree[0][0], priceTree, answerTree
 
 valueOption(30, 30, 90 / 365 , 0.07, 1, 1.15, 0.87, typ='C')
+valueOption(30, 30, 90 / 365 , 0.07, 1, 1.15, 0.87, typ='P')
