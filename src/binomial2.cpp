@@ -47,14 +47,14 @@ BinomialModel2::BinomialModel2(double spotPrice, double strikePrice, double inte
     std::cout << "Probablility of upmove: " << p_up << "\n";
 }
 
-double BinomialModel2::_getCalValue_Rec(int daysToExpiry, double spotPrice) {
+double BinomialModel2::_getCallValue_Rec(int daysToExpiry, double spotPrice) {
 
     if (daysToExpiry == 0) return std::max(0.0, spotPrice - strikePrice_);
 
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
-    double c1u = _getCalValue_Rec(daysToExpiry - 1, s1u);
-    double c1d = _getCalValue_Rec(daysToExpiry - 1, s1d);
+    double c1u = _getCallValue_Rec(daysToExpiry - 1, s1u);
+    double c1d = _getCallValue_Rec(daysToExpiry - 1, s1d);
 
     // c1 (Expected future payoff) = probability-weighted value of upmove and downmove
     double c1 = p_up * c1u + (1 - p_up) * c1d;
@@ -63,12 +63,33 @@ double BinomialModel2::_getCalValue_Rec(int daysToExpiry, double spotPrice) {
     return c0;
 
 }
+
+double BinomialModel2::_getPutValue_Rec(int daysToExpiry, double spotPrice) {
+
+    if (daysToExpiry == 0) return std::max(0.0, strikePrice_ - spotPrice);
+
+    double s1u = spotPrice_ * upMove_;
+    double s1d = spotPrice_ * downMove_;
+    double p1u = _getCallValue_Rec(daysToExpiry - 1, s1u);
+    double p1d = _getCallValue_Rec(daysToExpiry - 1, s1d);
+
+    // c1 (Expected future payoff) = probability-weighted value of upmove and downmove
+    double p1 = p_up * p1u + (1 - p_up) * p1d;
+    double p0 = p1 / (1 + interestRate_ / 365);
+
+    return p0;
+
+}
+
 double BinomialModel2::getCallValue_v3() {
     
-    double c0 = _getCalValue_Rec(daysToExpiry_, spotPrice_);
+    double c0 = _getCallValue_Rec(daysToExpiry_, spotPrice_);
     std::cout << "C0: " << c0 << "\n";
     return c0;
 }
+
 double BinomialModel2::getPutValue_v3() {
-    return 0.0;
+    double p0 = _getPutValue_Rec(daysToExpiry_, spotPrice_);
+    std::cout << "P0: " << p0 << "\n";
+    return p0;
 }

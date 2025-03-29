@@ -12,5 +12,6 @@ class BinomialModel2{
         double getPutValue_v3();
 
     private:
-        double _getCalValue_Rec(int, double);
+        double _getCallValue_Rec(int, double);
+        double _getPutValue_Rec(int, double);
 };
