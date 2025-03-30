@@ -38,7 +38,7 @@ BinomialModel::BinomialModel(double spotPrice, double strikePrice, double intere
     std::cout << "Down move factor: " << downMove_  << "\n";
 }
 
-double BinomialModel::getCallValue_v1() {
+double BinomialModel::getCallValue_TheLongWay() {
 
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
@@ -67,7 +67,7 @@ double BinomialModel::getCallValue_v1() {
     return c0;
 }
 
-double BinomialModel::getPutValue_v1() {
+double BinomialModel::getPutValue_TheLongWay() {
 
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
@@ -95,7 +95,7 @@ double BinomialModel::getPutValue_v1() {
     return p0;
 }
 
-double BinomialModel::getCallValue_v2() {
+double BinomialModel::getCallValue_RiskNeutralProbab() {
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
     double c1u = std::max(0.0, s1u - strikePrice_);
@@ -119,7 +119,7 @@ double BinomialModel::getCallValue_v2() {
     return c0;
 }
 
-double BinomialModel::getPutValue_v2() {
+double BinomialModel::getPutValue_RiskNeutralProbab() {
     double s1u = spotPrice_ * upMove_;
     double s1d = spotPrice_ * downMove_;
     double p1u = std::max(0.0, strikePrice_ - s1u);
