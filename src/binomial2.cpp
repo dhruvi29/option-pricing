@@ -53,8 +53,8 @@ double BinomialModel2::_getCallValue_rec(int daysToExpiry, double spotPrice) {
 
     if (daysToExpiry == 0) return std::max(0.0, spotPrice - strikePrice_);
 
-    double s1u = spotPrice_ * upMove_;
-    double s1d = spotPrice_ * downMove_;
+    double s1u = spotPrice * upMove_;
+    double s1d = spotPrice * downMove_;
     double c1u = _getCallValue_rec(daysToExpiry - 1, s1u);
     double c1d = _getCallValue_rec(daysToExpiry - 1, s1d);
 
@@ -73,8 +73,8 @@ double BinomialModel2::_getCallValue_mem(int daysToExpiry, double spotPrice) {
 
     if (dp[daysToExpiry].count(spotPrice) > 0) return dp[daysToExpiry][spotPrice];
 
-    double s1u = spotPrice_ * upMove_;
-    double s1d = spotPrice_ * downMove_;
+    double s1u = spotPrice * upMove_;
+    double s1d = spotPrice * downMove_;
     double c1u = _getCallValue_mem(daysToExpiry - 1, s1u);
     double c1d = _getCallValue_mem(daysToExpiry - 1, s1d);
 
@@ -90,8 +90,8 @@ double BinomialModel2::_getPutValue_rec(int daysToExpiry, double spotPrice) {
 
     if (daysToExpiry == 0) return std::max(0.0, strikePrice_ - spotPrice);
 
-    double s1u = spotPrice_ * upMove_;
-    double s1d = spotPrice_ * downMove_;
+    double s1u = spotPrice * upMove_;
+    double s1d = spotPrice * downMove_;
     double p1u = _getPutValue_rec(daysToExpiry - 1, s1u);
     double p1d = _getPutValue_rec(daysToExpiry - 1, s1d);
 
@@ -108,8 +108,8 @@ double BinomialModel2::_getPutValue_mem(int daysToExpiry, double spotPrice) {
 
     if (dp[daysToExpiry].count(spotPrice) > 0) return dp[daysToExpiry][spotPrice];
 
-    double s1u = spotPrice_ * upMove_;
-    double s1d = spotPrice_ * downMove_;
+    double s1u = spotPrice * upMove_;
+    double s1d = spotPrice * downMove_;
     double p1u = _getPutValue_mem(daysToExpiry - 1, s1u);
     double p1d = _getPutValue_mem(daysToExpiry - 1, s1d);
 
@@ -164,6 +164,30 @@ double BinomialModel2::getCallValue_MultiPeriod_DP() {
             if (day == 0) {
                 double spotPrice = spotPrice_ * std::pow(upMove_, spotIndex - daysToExpiry_);
                 dp[day][spotIndex] = std::max(0.0 , spotPrice - strikePrice_); 
+            }
+            else dp[day][spotIndex] = (p_up * dp[day - 1][spotIndex + 1] + (1 - p_up) * dp[day - 1][spotIndex - 1]) / pv_factor;
+            // std::cout << day << " " << spotPrice_ * std::pow(upMove_, spotIndex - daysToExpiry_) << " " << dp[day][spotIndex] << "\n";
+        }
+    }
+
+    std::cout << "C0: " << dp[daysToExpiry_][daysToExpiry_] << "\n";
+    return dp[daysToExpiry_][daysToExpiry_];
+
+}
+double BinomialModel2::getPutValue_MultiPeriod_DP() {
+    
+    int noOfSpotIndices = daysToExpiry_ * 2 + 1;
+    std::vector<std::vector<double>> dp(daysToExpiry_ + 1, std::vector<double>(noOfSpotIndices, 0));
+
+    double pv_factor = (1 + interestRate_ / 365); // present value divisor
+
+    for (int day = 0 ; day <= daysToExpiry_ ; day++) {
+
+        for (int spotIndex = day ; spotIndex < noOfSpotIndices - day ; spotIndex++) {
+
+            if (day == 0) {
+                double spotPrice = spotPrice_ * std::pow(upMove_, spotIndex - daysToExpiry_);
+                dp[day][spotIndex] = std::max(0.0 , strikePrice_ - spotPrice); 
             }
             else dp[day][spotIndex] = (p_up * dp[day - 1][spotIndex + 1] + (1 - p_up) * dp[day - 1][spotIndex - 1]) / pv_factor;
             // std::cout << day << " " << spotPrice_ * std::pow(upMove_, spotIndex - daysToExpiry_) << " " << dp[day][spotIndex] << "\n";
