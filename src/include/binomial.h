@@ -6,9 +6,6 @@ class BinomialModel{
         
         BinomialModel(double, double, double, double, double);
 
-        double getCallValue_TheLongWay();
-        double getPutValue_TheLongWay();
-
-        double getCallValue_RiskNeutralProbab();
-        double getPutValue_RiskNeutralProbab();
+        double getOptionValue_TheLongWay(char);
+        double getOptionValue_RiskNeutralProbab(char);
 };
