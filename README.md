@@ -25,6 +25,7 @@
 4. Present value of xpected future payoff -> Required value of call / put
 
 > gives exact same results as version 1
+> Version 1 & 2 donot have multilevels and does not account number of days to expiry - We discount it by one year. Hence, it gives us value of an option that expires one year from now while calculating only one branch / level (i.e. not multi-level)
 
 #### Version 3: Multilevel - Include days to expiry + Recursive solution
 
@@ -33,3 +34,5 @@
 #### Version 4: Multilevel - Memoised
 
 #### Version 5: Multilevel - Bottom up DP
+
+> Version 3,4,5 are in binomial2. They take into consideration the days to expiration while having equal number of branches as to number of days & daily compunding / discounting.

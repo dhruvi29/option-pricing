@@ -13,20 +13,15 @@ class BinomialModel2{
         BinomialModel2(double, double, double, double, double, int);
 
         // Recursive multi-level binomial option pricing
-        double getCallValue_MultiPeriod_Recursive();
-        double getPutValue_MultiPeriod_Recursive();
+        double getOptionValue_MultiPeriod_Recursive(char);
 
-        double getCallValue_MultiPeriod_Memoised();
-        double getPutValue_MultiPeriod_Memoised();
+        double getOptionValue_MultiPeriod_Memoised(char);
 
-        double getCallValue_MultiPeriod_DP();
-        double getPutValue_MultiPeriod_DP();
+        double getOptionValue_MultiPeriod_DP(char);
         
     private:
 
-        double _getCallValue_rec(int, double);
-        double _getPutValue_rec(int, double);
+        double _getOptionValue_rec(int, double, char);
 
-        double _getCallValue_mem(int, double);
-        double _getPutValue_mem(int, double);
+        double _getOptionValue_mem(int, double, char);
     };
